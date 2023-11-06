@@ -37,34 +37,40 @@ describe('Hacker Stories', () => {
 
         cy.get('.item').should('have.length', 40)
       })
+    })
 
-      it('searches via the last searched term', () => {
-        cy.intercept(
-          'GET',
-          `**/search?query=${newTerm}&page=0`
-        ).as('getNewTermStories')
+    it('searches via the last searched term', () => {
+      cy.intercept(
+        'GET',
+        `**/search?query=${newTerm}&page=0`
+      ).as('getNewTermStories')
 
-        cy.get('#search')
-          .should('be.visible')
-          .clear()
-          .type(`${newTerm}{enter}`)
+      cy.get('#search')
+        .should('be.visible')
+        .clear()
+        .type(`${newTerm}{enter}`)
 
-        cy.wait('@getNewTermStories')
+      cy.wait('@getNewTermStories')
 
-        cy.get(`button:contains(${initialTerm})`)
-          .should('be.visible')
-          .click()
+      cy.getLocalStorage('search')
+        .should('be.equal', newTerm)
 
-        cy.wait('@getStories')
+      cy.get(`button:contains(${initialTerm})`)
+        .should('be.visible')
+        .click()
 
-        cy.get('.item').should('have.length', 20)
-        cy.get('.item')
-          .first()
-          .should('be.visible')
-          .and('contain', initialTerm)
-        cy.get(`button:contains(${newTerm})`)
-          .should('be.visible')
-      })
+      cy.wait('@getStories')
+
+      cy.getLocalStorage('search')
+        .should('be.equal', initialTerm)
+
+      cy.get('.item').should('have.length', 20)
+      cy.get('.item')
+        .first()
+        .should('be.visible')
+        .and('contain', initialTerm)
+      cy.get(`button:contains(${newTerm})`)
+        .should('be.visible')
     })
 
     context('Moking the API', () => {
@@ -269,7 +275,7 @@ describe('Hacker Stories', () => {
         // *** este cenário é apenas um exemplo de que é possível fazer de outra forma, essa não sendo tão e2e
 
         context('Last searches', () => {
-          it.only('shows a max of 5 buttons for the last searched terms', () => {
+          it('shows a max of 5 buttons for the last searched terms', () => {
             const faker = require('faker')
 
             cy.intercept(
@@ -279,18 +285,21 @@ describe('Hacker Stories', () => {
             ).as('getRandomStories')
 
             Cypress._.times(6, () => {
+              const randomWord = faker.random.word()
               cy.get('#search')
                 .clear()
-                .type(`${faker.random.word()}{enter}`)
+                .type(`${randomWord}{enter}`)
               cy.wait('@getRandomStories')
+              cy.getLocalStorage('search')
+              .should('be.equal', randomWord)
             })
 
-            cy.get('.last-searches button')
+            cy.get('.last-searches')
               .within(() => {
                 cy.get('button')
                   .should('have.length', 5)
               })
-              // dá para usar nesse formato quando o seletor for muito grande -> adiciona o elemento em um escopo
+            // dá para usar nesse formato quando o seletor for muito grande -> adiciona o elemento em um escopo
           })
         })
       })
