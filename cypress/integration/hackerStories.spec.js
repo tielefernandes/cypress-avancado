@@ -37,40 +37,41 @@ describe('Hacker Stories', () => {
 
         cy.get('.item').should('have.length', 40)
       })
-    })
 
-    it('searches via the last searched term', () => {
-      cy.intercept(
-        'GET',
-        `**/search?query=${newTerm}&page=0`
-      ).as('getNewTermStories')
 
-      cy.get('#search')
-        .should('be.visible')
-        .clear()
-        .type(`${newTerm}{enter}`)
+      it('searches via the last searched term', () => {
+        cy.intercept(
+          'GET',
+          `**/search?query=${newTerm}&page=0`
+        ).as('getNewTermStories')
 
-      cy.wait('@getNewTermStories')
+        cy.get('#search')
+          .should('be.visible')
+          .clear()
+          .type(`${newTerm}{enter}`)
 
-      cy.getLocalStorage('search')
-        .should('be.equal', newTerm)
+        cy.wait('@getNewTermStories')
 
-      cy.get(`button:contains(${initialTerm})`)
-        .should('be.visible')
-        .click()
+        cy.getLocalStorage('search')
+          .should('be.equal', newTerm)
 
-      cy.wait('@getStories')
+        cy.get(`button:contains(${initialTerm})`)
+          .should('be.visible')
+          .click()
 
-      cy.getLocalStorage('search')
-        .should('be.equal', initialTerm)
+        cy.wait('@getStories')
 
-      cy.get('.item').should('have.length', 20)
-      cy.get('.item')
-        .first()
-        .should('be.visible')
-        .and('contain', initialTerm)
-      cy.get(`button:contains(${newTerm})`)
-        .should('be.visible')
+        cy.getLocalStorage('search')
+          .should('be.equal', initialTerm)
+
+        cy.get('.item').should('have.length', 20)
+        cy.get('.item')
+          .first()
+          .should('be.visible')
+          .and('contain', initialTerm)
+        cy.get(`button:contains(${newTerm})`)
+          .should('be.visible')
+      })
     })
 
     context('Moking the API', () => {
@@ -291,7 +292,7 @@ describe('Hacker Stories', () => {
                 .type(`${randomWord}{enter}`)
               cy.wait('@getRandomStories')
               cy.getLocalStorage('search')
-              .should('be.equal', randomWord)
+                .should('be.equal', randomWord)
             })
 
             cy.get('.last-searches')
@@ -335,22 +336,22 @@ describe('Hacker Stories', () => {
         .should('be.visible')
     })
   })
-})
 
-it('shows a "Loading ..." state before showing the results', () => {
-  cy.intercept(
-    'GET',
-    '**/search**',
-    {
-      delay:1000,
-      fixture: 'stories'
-    }
-  ).as('getDelayedStories')
+  it('shows a "Loading ..." state before showing the results', () => {
+    cy.intercept(
+      'GET',
+      '**/search**',
+      {
+        delay: 1000,
+        fixture: 'stories'
+      }
+    ).as('getDelayedStories')
 
-  cy.visit('/')
+    cy.visit('/')
 
-  cy.assertLoadingIsShownAndHidden()
-  cy.get('@getDelayedStories')
+    cy.assertLoadingIsShownAndHidden()
+    cy.get('@getDelayedStories')
 
-  cy.get('.item').should('have.length', 2)
+    cy.get('.item').should('have.length', 2)
+  })
 })
