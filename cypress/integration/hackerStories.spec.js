@@ -269,7 +269,7 @@ describe('Hacker Stories', () => {
         // *** este cenário é apenas um exemplo de que é possível fazer de outra forma, essa não sendo tão e2e
 
         context('Last searches', () => {
-          it('shows a max of 5 buttons for the last searched terms', () => {
+          it.only('shows a max of 5 buttons for the last searched terms', () => {
             const faker = require('faker')
 
             cy.intercept(
@@ -286,7 +286,11 @@ describe('Hacker Stories', () => {
             })
 
             cy.get('.last-searches button')
-              .should('have.length', 5)
+              .within(() => {
+                cy.get('button')
+                  .should('have.length', 5)
+              })
+              // dá para usar nesse formato quando o seletor for muito grande -> adiciona o elemento em um escopo
           })
         })
       })
